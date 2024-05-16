@@ -43,3 +43,24 @@ func TestUnpackInvalidString(t *testing.T) {
 		})
 	}
 }
+
+func TestZero(t *testing.T) {
+	testCases := []struct {
+		input    string
+		expected string
+	}{
+		{"hello", "hell"},
+		{"world", "worl"},
+		{"", ""},
+		{"12345", "1234"},
+		{"abcdef", "abcde"},
+		{"a", ""},
+	}
+
+	for _, tc := range testCases {
+		result := zero(tc.input)
+		if result != tc.expected {
+			t.Errorf("For input %q, expected %q, but got %q", tc.input, tc.expected, result)
+		}
+	}
+}
