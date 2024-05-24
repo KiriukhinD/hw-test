@@ -14,28 +14,24 @@ var ErrInvalidString = errors.New("invalid string")
 func Unpack(str string) (string, error) {
 	var builder strings.Builder
 	var result string
-	count := utf8.RuneCountInString(str)
 
+	count := utf8.RuneCountInString(str)
 	if count == 0 {
 		return "", nil
 	}
+
+	runes := []rune(str)
 
 	err := valid(str)
 	if err != nil {
 		return "", err
 	}
 
-	runes := []rune(str)
-	for i, char := range runes {
-		tt := []rune(str)[i]
+	for i := 0; i < count; i++ {
 
-		if unicode.IsDigit(tt) {
-			i++
-			pp := []rune(str)[i]
-			if unicode.IsDigit(pp) {
-				return "", ErrInvalidString
-			}
-			val, _ := strconv.Atoi(string(char))
+		if unicode.IsDigit(runes[i]) {
+			val, _ := strconv.Atoi(string(runes[i]))
+
 			if val == 0 {
 				res := zero(builder.String())
 				builder.Reset()
@@ -43,37 +39,19 @@ func Unpack(str string) (string, error) {
 			}
 
 			for y := 0; y < val-1; y++ {
-				ff := []rune(str)[i-2]
-				builder.WriteString(string(ff))
-				result += string(ff)
+				builder.WriteString(string(runes[i-1]))
+				result += string(runes[i-1])
 				continue
 			}
+
 		} else {
-			builder.WriteString(string(char))
-			result += string(char)
+			builder.WriteString(string(runes[i]))
+			result += string(runes[i])
 		}
 	}
 	fmt.Println(builder.String())
 	return builder.String(), nil
-}
 
-func valid(str string) error {
-	runes := []rune(str)
-	for i, char := range runes {
-		if i == 0 && unicode.IsDigit(char) {
-			return ErrInvalidString
-		}
-
-		tt := []rune(str)[i]
-		if unicode.IsDigit(tt) {
-			i++
-			pp := []rune(str)[i]
-			if unicode.IsDigit(pp) {
-				return ErrInvalidString
-			}
-		}
-	}
-	return nil
 }
 
 func zero(str string) string {
@@ -82,4 +60,20 @@ func zero(str string) string {
 		builder.WriteString(string(str[i]))
 	}
 	return builder.String()
+}
+
+func valid(str string) error {
+	count := utf8.RuneCountInString(str)
+	runes := []rune(str)
+
+	for i := 0; i < count; i++ {
+		if i == 0 && unicode.IsDigit(runes[i]) {
+			return ErrInvalidString
+		}
+
+		if unicode.IsDigit(runes[i]) && unicode.IsDigit(runes[i-1]) {
+			return ErrInvalidString
+		}
+	}
+	return nil
 }
