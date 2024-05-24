@@ -26,9 +26,7 @@ func Unpack(str string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	for i := 0; i < count; i++ {
-
 		if unicode.IsDigit(runes[i]) {
 			val, _ := strconv.Atoi(string(runes[i]))
 
@@ -43,15 +41,14 @@ func Unpack(str string) (string, error) {
 				result += string(runes[i-1])
 				continue
 			}
-
 		} else {
 			builder.WriteString(string(runes[i]))
 			result += string(runes[i])
 		}
 	}
+
 	fmt.Println(builder.String())
 	return builder.String(), nil
-
 }
 
 func zero(str string) string {
