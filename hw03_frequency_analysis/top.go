@@ -51,6 +51,7 @@ func Top10(text string) []string {
 	fmt.Print(builder.String())
 	return out
 }
+
 func countWords(input string) map[string]int {
 	words := strings.Fields(input)
 	wordCount := make(map[string]int)
