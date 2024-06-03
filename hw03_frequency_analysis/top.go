@@ -57,6 +57,7 @@ func countWords(input string) map[string]int {
 	for _, word := range words {
 		wordCount[word]++
 	}
+
 	return wordCount
 }
 
