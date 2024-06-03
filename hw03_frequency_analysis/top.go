@@ -48,7 +48,6 @@ func Top10(text string) []string {
 			builder.Reset()
 		}
 	}
-	fmt.Print(builder.String())
 	return out
 }
 
