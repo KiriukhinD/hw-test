@@ -1,6 +1,7 @@
 package hw03frequencyanalysis
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -79,4 +80,15 @@ func TestTop10(t *testing.T) {
 			require.Equal(t, expected, Top10(text))
 		}
 	})
+}
+
+func TestMySorting(t *testing.T) {
+	input := []string{"banana", "apple", "orange"}
+	expected := []string{"apple", "banana", "orange"}
+
+	result := MySorting(input)
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Failed: expected %v, got %v", expected, result)
+	}
 }
