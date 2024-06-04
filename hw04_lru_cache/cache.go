@@ -34,7 +34,7 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 		c.queue.Remove(c.queue.Back())
 	}
 
-	newItem := c.queue.PushFront(key) //
+	newItem := c.queue.PushFront(key)
 	newItem.Value = value
 	c.items[key] = newItem
 	return false
