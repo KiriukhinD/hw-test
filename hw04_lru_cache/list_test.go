@@ -57,12 +57,10 @@ func TestPushBack(t *testing.T) {
 	l.PushBack(2)
 	l.PushBack(3)
 
-	// Проверяем, что длина списка равна 3
 	if l.len != 3 {
 		t.Errorf("Expected list length to be 3, got %d", l.len)
 	}
 
-	// Проверяем значения элементов
 	if l.front.Value != 1 {
 		t.Errorf("Expected front value to be 1, got %v", l.front.Value)
 	}
@@ -74,7 +72,6 @@ func TestPushBack(t *testing.T) {
 	}
 }
 
-// Это заглушка для функции NewList для тестирования
 func NewListTest() *List2 {
 	return &List2{}
 }
