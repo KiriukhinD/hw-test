@@ -16,31 +16,31 @@ type ListItem struct {
 	Prev  *ListItem
 }
 
-type list struct {
+type List2 struct {
 	front *ListItem
 	back  *ListItem
 	len   int
 }
 
-func NewList() List {
-	return new(list)
+func NewList() *List2 {
+	return new(List2)
 }
 
 ///////////////////////////
 
-func (l *list) Len() int {
+func (l *List2) Len() int {
 	return l.len
 }
 
-func (l *list) Front() *ListItem {
+func (l *List2) Front() *ListItem {
 	return l.front
 }
 
-func (l *list) Back() *ListItem {
+func (l *List2) Back() *ListItem {
 	return l.back
 }
 
-func (l *list) PushFront(v interface{}) *ListItem {
+func (l *List2) PushFront(v interface{}) *ListItem {
 	newItem := &ListItem{Value: v, Next: l.front}
 	if l.front != nil {
 		l.front.Prev = newItem
@@ -53,7 +53,7 @@ func (l *list) PushFront(v interface{}) *ListItem {
 	return newItem
 }
 
-func (l *list) PushBack(v interface{}) *ListItem {
+func (l *List2) PushBack(v interface{}) *ListItem {
 	newItem := &ListItem{Value: v, Prev: l.back}
 	if l.back != nil {
 		l.back.Next = newItem
@@ -66,7 +66,7 @@ func (l *list) PushBack(v interface{}) *ListItem {
 	return newItem
 }
 
-func (l *list) Remove(i *ListItem) {
+func (l *List2) Remove(i *ListItem) {
 	if i.Prev != nil {
 		i.Prev.Next = i.Next
 	} else {
@@ -82,7 +82,7 @@ func (l *list) Remove(i *ListItem) {
 	l.len--
 }
 
-func (l *list) MoveToFront(i *ListItem) {
+func (l *List2) MoveToFront(i *ListItem) {
 	if i == l.front {
 		return
 	}
