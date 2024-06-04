@@ -49,3 +49,32 @@ func TestList(t *testing.T) {
 		require.Equal(t, []int{70, 80, 60, 40, 10, 30, 50}, elems)
 	})
 }
+
+func TestPushBack(t *testing.T) {
+	l := NewListTest()
+
+	l.PushBack(1)
+	l.PushBack(2)
+	l.PushBack(3)
+
+	// Проверяем, что длина списка равна 3
+	if l.len != 3 {
+		t.Errorf("Expected list length to be 3, got %d", l.len)
+	}
+
+	// Проверяем значения элементов
+	if l.front.Value != 1 {
+		t.Errorf("Expected front value to be 1, got %v", l.front.Value)
+	}
+	if l.front.Next.Value != 2 {
+		t.Errorf("Expected front's next value to be 2, got %v", l.front.Next.Value)
+	}
+	if l.back.Value != 3 {
+		t.Errorf("Expected back value to be 3, got %v", l.back.Value)
+	}
+}
+
+// Это заглушка для функции NewList для тестирования
+func NewListTest() *List2 {
+	return &List2{}
+}
