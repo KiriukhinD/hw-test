@@ -25,7 +25,6 @@ linters:
     - bodyclose
     - dogsled
     - dupl
-    - depguard
     - durationcheck
     - errorlint
     - exhaustive
