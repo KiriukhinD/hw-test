@@ -50,9 +50,11 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 	for {
 		n, err := fromFile.Read(buffer)
-		if err == io.EOF {
-			break
+
+		if errors.Is(err, io.EOF) {
+			fmt.Printf("copied %d bytes from %s\n", n, fromPath)
 		}
+
 		if err != nil {
 			log.Panicf("failed to red: %v", err)
 		}

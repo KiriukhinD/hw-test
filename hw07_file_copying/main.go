@@ -17,11 +17,9 @@ func init() {
 }
 
 func main() {
-
 	flag.Parse()
 	err := Copy(from, to, limit, offset)
 	if err != nil {
 		return
 	}
-
 }
