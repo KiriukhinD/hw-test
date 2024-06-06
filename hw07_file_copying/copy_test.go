@@ -14,7 +14,7 @@ func TestCopy(t *testing.T) {
 		expectErr bool
 	}{
 		{
-			fromPath:  "",
+			fromPath:  "hw07_file_copying/testdata/input.txt",
 			toPath:    "",
 			offset:    0,
 			limit:     0,
