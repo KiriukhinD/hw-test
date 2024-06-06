@@ -50,6 +50,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 	for {
 		n, err := fromFile.Read(buffer)
+
 		if err == io.EOF {
 			break
 		}

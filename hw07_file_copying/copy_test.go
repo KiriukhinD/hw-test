@@ -7,15 +7,15 @@ import (
 
 func TestCopy(t *testing.T) {
 	testCases := []struct {
-		fromPath  string
+		fromURL   string
 		toPath    string
 		offset    int64
 		limit     int64
 		expectErr bool
 	}{
 		{
-			fromPath:  "https://github.com/KiriukhinD/hw-test/blob/master/hw07_file_copying/testdata/input.txt",
-			toPath:    "https://github.com/KiriukhinD/hw-test/blob/master/hw07_file_copying/testdata/input.txt/out_offset0_limit0.txt",
+			fromURL:   "https://github.com/KiriukhinD/hw-test/blob/hw07_file_copying/hw07_file_copying/testdata/input.txt",
+			toPath:    "https://github.com/KiriukhinD/hw-test/blob/hw07_file_copying/hw07_file_copying/testdata/out_offset0_limit0.txt",
 			offset:    0,
 			limit:     0,
 			expectErr: false,
@@ -23,7 +23,7 @@ func TestCopy(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		err := Copy(tc.fromPath, tc.toPath, tc.offset, tc.limit)
+		err := Copy(tc.fromURL, tc.toPath, tc.offset, tc.limit)
 
 		if tc.expectErr && err == nil {
 			t.Errorf("Expected an error but got nil")
