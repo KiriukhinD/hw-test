@@ -10,8 +10,8 @@ var (
 )
 
 func init() {
-	flag.StringVar(&from, "from", "D:\\GoProjectWork\\hw-test\\hw07_file_copying\\testdata\\out_offset0_limit1000.txt", "file to read from")
-	flag.StringVar(&to, "to", "D:\\GoProjectWork\\hw-test\\hw07_file_copying\\testdata\\testResult.txt", "file to write to")
+	flag.StringVar(&from, "from", "", "file to read from")
+	flag.StringVar(&to, "to", "", "file to write to")
 	flag.Int64Var(&limit, "limit", 0, "limit of bytes to copy")
 	flag.Int64Var(&offset, "offset", 0, "offset in input file")
 }
