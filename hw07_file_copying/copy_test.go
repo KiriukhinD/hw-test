@@ -14,7 +14,7 @@ func TestCopy(t *testing.T) {
 		expectErr bool
 	}{
 		{
-			fromPath:  "https://github.com/KiriukhinD/hw-test/blob/8edc22474bc58da6d48053cb9a40fe1f2eafbd55/hw07_file_copying/testdata/input.txt",
+			fromPath:  "github.com/KiriukhinD/hw-test/blob/8edc22474bc58da6d48053cb9a40fe1f2eafbd55/hw07_file_copying/testdata/input.txt",
 			toPath:    "",
 			offset:    0,
 			limit:     0,
