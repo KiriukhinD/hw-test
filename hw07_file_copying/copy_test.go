@@ -14,8 +14,8 @@ func TestCopy(t *testing.T) {
 		expectErr bool
 	}{
 		{
-			fromPath:  "github.com/KiriukhinD/hw-test/blob/8edc22474bc58da6d48053cb9a40fe1f2eafbd55/hw07_file_copying/testdata/input.txt",
-			toPath:    "",
+			fromPath:  "D:\\GoProjectWork\\hw-test\\hw07_file_copying\\testdata\\input.txt",
+			toPath:    "D:\\GoProjectWork\\hw-test\\hw07_file_copying\\out.txt",
 			offset:    0,
 			limit:     0,
 			expectErr: false,
