@@ -47,16 +47,16 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 	percentage := 0
 	buffer := make([]byte, 1024)
+	bytesCopied := int64(0)
 
 	for {
 		n, err := fromFile.Read(buffer)
-
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 
 		if err != nil {
-			log.Panicf("failed to red: %v", err)
+			log.Panicf("failed to read: %v", err)
 		}
 		if n == 0 {
 			break
@@ -67,12 +67,12 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 			return err
 		}
 
-		newOffset, err := toFile.Seek(0, io.SeekCurrent)
-		if err != nil {
-			return err
+		bytesCopied += int64(n)
+		if bytesCopied > limit {
+			bytesCopied = limit
 		}
 
-		percentage = int(float64(newOffset-offset) / float64(limit) * 100)
+		percentage = int(float64(bytesCopied) / float64(limit) * 100)
 		fmt.Printf("\rCopying... %d%%", percentage)
 	}
 	fmt.Println("\nCopy completed!")
