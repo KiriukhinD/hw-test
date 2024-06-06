@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 )
 
@@ -46,10 +47,14 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 	percentage := 0
 	buffer := make([]byte, 1024)
+
 	for {
 		n, err := fromFile.Read(buffer)
-		if err != nil && err != io.EOF {
-			return err
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Panicf("failed to red: %v", err)
 		}
 		if n == 0 {
 			break
