@@ -15,7 +15,7 @@ func TestCopy(t *testing.T) {
 	}{
 		{
 			fromURL:   "testdata/input.txt",
-			toPath:    "testdata/out_offset0_limit0.txt",
+			toPath:    "/tmp/out.txt",
 			offset:    0,
 			limit:     0,
 			expectErr: false,
