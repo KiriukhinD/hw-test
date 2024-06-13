@@ -3,6 +3,7 @@ package hw09structvalidator
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -56,5 +57,44 @@ func TestValidate(t *testing.T) {
 			// Place your code here.
 			_ = tt
 		})
+	}
+}
+func TestValidateField(t *testing.T) {
+	type testCase struct {
+		fieldName   string
+		value       reflect.Value
+		validator   string
+		expectedErr string
+	}
+
+	testCases := []testCase{
+		{
+			fieldName:   "TestString",
+			value:       reflect.ValueOf("hello"),
+			validator:   "len:5",
+			expectedErr: "",
+		},
+		{
+			fieldName:   "TestNumber",
+			value:       reflect.ValueOf(10),
+			validator:   "min:15",
+			expectedErr: "TestNumber should be greater than 15",
+		},
+		{
+			fieldName:   "TestEmail",
+			value:       reflect.ValueOf("example.com"),
+			validator:   "regexp:^\\w+@\\w+\\.\\w+$",
+			expectedErr: "TestEmail should match pattern ^\\w+@\\w+\\.\\w+$",
+		},
+		// Add more test cases as needed
+	}
+
+	for _, tc := range testCases {
+		err := validateField(tc.fieldName, tc.value, tc.validator)
+
+		if err != nil && err.Error() != tc.expectedErr {
+			t.Errorf("Validation failed for %s with value %v and validator %s. Expected: %s, Got: %s",
+				tc.fieldName, tc.value, tc.validator, tc.expectedErr, err.Error())
+		}
 	}
 }
