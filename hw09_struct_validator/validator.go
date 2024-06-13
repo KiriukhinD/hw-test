@@ -15,7 +15,7 @@ type ValidationError struct {
 }
 
 func (v ValidationErrors) Error() string {
-	var errors []string
+	errors := []string{}
 	for _, err := range v {
 		errors = append(errors, fmt.Sprintf("%s: %s", err.Field, err))
 	}
@@ -55,7 +55,6 @@ func Validate(v interface{}) error {
 		return valErrors
 	}
 
-	return nil
 	return nil
 }
 

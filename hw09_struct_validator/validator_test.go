@@ -59,6 +59,7 @@ func TestValidate(t *testing.T) {
 		})
 	}
 }
+
 func TestValidateField(t *testing.T) {
 	type testCase struct {
 		fieldName   string
