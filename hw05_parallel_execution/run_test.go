@@ -68,3 +68,30 @@ func TestRun(t *testing.T) {
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
 	})
 }
+
+func TestRun2(t *testing.T) {
+	errSimulator := make(chan struct{})
+	tasks := []Task{
+		func() error {
+			<-errSimulator
+			return nil
+		},
+		func() error {
+			return errors.New("Some error")
+		},
+		func() error {
+			return errors.New("Another error")
+		},
+		// Add more tasks as needed
+	}
+	n := 3
+	m := 2
+
+	go func() { errSimulator <- struct{}{} }()
+	go func() { errSimulator <- struct{}{} }()
+
+	err := Run(tasks, n, m)
+	if !errors.Is(err, ErrErrorsLimitExceeded) {
+		t.Errorf("Expected ErrErrorsLimitExceeded, got %v", err)
+	}
+}
