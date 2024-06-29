@@ -91,3 +91,102 @@ func TestPipeline(t *testing.T) {
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
 }
+
+func TestPipe(t *testing.T) {
+	// Stage generator
+	g := func(f func(v interface{}) interface{}) Stage {
+		return func(in In) Out {
+			out := make(Bi)
+			go func() {
+				defer close(out)
+				for v := range in {
+					time.Sleep(sleepPerStage)
+					out <- f(v)
+				}
+			}()
+			return out
+		}
+	}
+
+	stages := []Stage{
+		g(func(v interface{}) interface{} { return v }),
+		g(func(v interface{}) interface{} { return v.(int) * 2 }),
+		g(func(v interface{}) interface{} { return v.(int) + 100 }),
+		g(func(v interface{}) interface{} { return strconv.Itoa(v.(int)) }),
+	}
+
+	t.Run("empty input", func(t *testing.T) {
+		in := make(Bi)
+		close(in) // Close the input channel immediately
+
+		result := make([]string, 0)
+		for s := range ExecutePipeline(in, nil, stages...) {
+			result = append(result, s.(string))
+		}
+
+		require.Empty(t, result)
+	})
+
+	t.Run("midway done", func(t *testing.T) {
+		in := make(Bi)
+		done := make(Bi)
+		data := []int{1, 2, 3, 4, 5}
+
+		// Send done signal after 350ms (midway through processing)
+		go func() {
+			time.Sleep(350 * time.Millisecond)
+			close(done)
+		}()
+
+		go func() {
+			for _, v := range data {
+				in <- v
+			}
+			close(in)
+		}()
+
+		result := make([]string, 0)
+		for s := range ExecutePipeline(in, done, stages...) {
+			result = append(result, s.(string))
+		}
+
+		require.True(t, len(result) < len(data))
+	})
+
+	t.Run("different data types", func(t *testing.T) {
+		in := make(Bi)
+		data := []interface{}{1, "two", 3.0, true}
+
+		go func() {
+			for _, v := range data {
+				in <- v
+			}
+			close(in)
+		}()
+
+		stages := []Stage{
+			g(func(v interface{}) interface{} { return v }),
+			g(func(v interface{}) interface{} {
+				switch v := v.(type) {
+				case int:
+					return v * 2
+				case string:
+					return v + v
+				case float64:
+					return v * 2
+				case bool:
+					return !v
+				default:
+					return v
+				}
+			}),
+		}
+
+		result := make([]interface{}, 0)
+		for s := range ExecutePipeline(in, nil, stages...) {
+			result = append(result, s)
+		}
+
+		require.Equal(t, []interface{}{2, "twotwo", 6.0, false}, result)
+	})
+}
