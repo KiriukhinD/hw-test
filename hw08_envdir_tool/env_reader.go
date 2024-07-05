@@ -2,7 +2,6 @@ package main
 
 import (
 	"io/ioutil"
-	"strings"
 )
 
 type Environment map[string]EnvValue
@@ -15,22 +14,25 @@ type EnvValue struct {
 
 // ReadDir reads a specified directory and returns map of env variables.
 // Variables represented as files where filename is name of variable, file first line is a value.
-func ReadDir(dirPath string) (map[string]EnvValue, error) {
-	env := make(map[string]EnvValue)
+func ReadDir(dir string) (Environment, error) {
+	env := make(Environment)
 
-	files, err := ioutil.ReadDir(dirPath)
+	entries, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, file := range files {
-		key := file.Name()
-		value, err := ioutil.ReadFile(dirPath + "\\" + key)
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		filePath := dir + "/" + entry.Name()
+		value, needRemove, err := processEnvFile(filePath)
 		if err != nil {
 			return nil, err
 		}
-		env[key] = EnvValue{Value: strings.TrimSpace(string(value)), NeedRemove: false}
+		env[entry.Name()] = EnvValue{Value: value, NeedRemove: needRemove}
 	}
-
 	return env, nil
 }
