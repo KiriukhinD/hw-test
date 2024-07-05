@@ -51,7 +51,6 @@ func Run(tasks []Task, n, m int) error {
 	}
 
 	wg.Wait()
-
 	if atomic.LoadInt32(&errorCount) >= int32(m) {
 		return ErrErrorsLimitExceeded
 	}
