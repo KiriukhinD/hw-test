@@ -3,7 +3,9 @@ package main
 import (
 	"bytes"
 	"io"
+	"io/ioutil"
 	"net"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -62,4 +64,62 @@ func TestTelnetClient(t *testing.T) {
 
 		wg.Wait()
 	})
+}
+func TestConnect(t *testing.T) {
+	address := "example.com:23"
+	timeout := 10 * time.Second
+	in := strings.NewReader("test input")
+	out := &bytes.Buffer{}
+	client := NewTelnetClient(address, timeout, ioutil.NopCloser(in), out)
+
+	err := client.Connect()
+	if err != nil {
+		t.Errorf("Error connecting: %v", err)
+	}
+
+	if client.Connect() == nil {
+		t.Error("Connection was not established")
+	}
+
+	client.Close()
+}
+
+func TestSendReceive(t *testing.T) {
+	address := "example.com:23"
+	timeout := 10 * time.Second
+	in := strings.NewReader("test input")
+	out := &bytes.Buffer{}
+	client := NewTelnetClient(address, timeout, ioutil.NopCloser(in), out)
+
+	conn, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		t.Fatalf("Error creating mock server: %v", err)
+	}
+	defer conn.Close()
+
+	go func() {
+		for {
+			client, err := conn.Accept()
+			if err != nil {
+				return
+			}
+			defer client.Close()
+			io.Copy(client, client)
+		}
+	}()
+
+	err = client.Connect()
+	if err != nil {
+		t.Fatalf("Error connecting: %v", err)
+	}
+
+	err = client.Send()
+	if err != nil {
+		t.Fatalf("Error sending: %v", err)
+	}
+
+	err = client.Receive()
+	if err != nil {
+		t.Fatalf("Error receiving: %v", err)
+	}
 }
