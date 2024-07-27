@@ -21,7 +21,6 @@ func TestTelnetClient(t *testing.T) {
 		wg.Add(2)
 		go func() {
 			defer wg.Done()
-
 			in := &bytes.Buffer{}
 			out := &bytes.Buffer{}
 
