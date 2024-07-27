@@ -42,7 +42,6 @@ func TestTelnetClient(t *testing.T) {
 
 		go func() {
 			defer wg.Done()
-
 			conn, err := l.Accept()
 			require.NoError(t, err)
 			require.NotNil(t, conn)
