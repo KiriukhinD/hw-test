@@ -19,7 +19,6 @@ func TestTelnetClient(t *testing.T) {
 
 		var wg sync.WaitGroup
 		wg.Add(2)
-
 		go func() {
 			defer wg.Done()
 			in := &bytes.Buffer{}
