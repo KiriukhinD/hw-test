@@ -26,6 +26,7 @@ func (t *telnetClient) Connect() error {
 	if err != nil {
 		return err
 	}
+
 	t.conn = conn
 	return nil
 }
