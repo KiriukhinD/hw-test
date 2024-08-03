@@ -42,7 +42,6 @@ func (t *telnetClient) Receive() error {
 
 func (t *telnetClient) Close() error {
 	return t.conn.Close()
-
 }
 
 func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
