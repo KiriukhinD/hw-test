@@ -35,7 +35,6 @@ func main() {
 		fmt.Println("Error connecting to the Telnet server:", err)
 		return
 	}
-	defer client.Close()
 
 	// Чтение пользовательского ввода
 	reader := bufio.NewReader(os.Stdin)
