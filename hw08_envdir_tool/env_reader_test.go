@@ -1,40 +1,103 @@
 package main
 
-import "testing"
+import (
+	"testing"
 
-// Let's assume we have the following directory structure for environment variables:
-// /path/to/env/dir/
-// ├── var1
-// ├── var2
-// └── var3
+	"github.com/stretchr/testify/require"
+)
 
 func TestReadDir(t *testing.T) {
-	expectedEnv := map[string]EnvValue{
-		"var1": {"value1", false},
-		"var2": {"value2", false},
-		"var3": {"", true},
-	}
-	testEnvDir := "/path/to/env/dir"
-	env, err := ReadDir(testEnvDir)
-	if err != nil {
-		t.Errorf("Error reading envdir: %v", err)
-	}
+	t.Run("check name", func(t *testing.T) {
+		result := checkName("asd")
+		require.True(t, result)
 
-	if len(env) != len(expectedEnv) {
-		t.Errorf("Expected %d env variables, but got %d", len(expectedEnv), len(env))
-	}
+		result = checkName("VA=R")
+		require.False(t, result)
 
-	for key, expectedValue := range expectedEnv {
-		actualValue, exists := env[key]
-		if !exists {
-			t.Errorf("Expected env variable %s doesn't exist", key)
-		} else {
-			if actualValue.Value != expectedValue.Value {
-				t.Errorf("Env variable %s has unexpected value. Expected: %s, Actual: %s", key, expectedValue.Value, actualValue.Value)
-			}
-			if actualValue.NeedRemove != expectedValue.NeedRemove {
-				t.Errorf("NeedRemove flag for env variable %s is unexpected. Expected: %t, Actual: %t", key, expectedValue.NeedRemove, actualValue.NeedRemove)
-			}
-		}
-	}
+		result = checkName("VAЯR")
+		require.False(t, result)
+
+		result = checkName(" VAR")
+		require.False(t, result)
+	})
+
+	t.Run("check handle value", func(t *testing.T) {
+		result := handleValue([]byte(""))
+		require.True(t, result.NeedRemove)
+
+		result = handleValue([]byte("hello"))
+		require.False(t, result.NeedRemove)
+
+		result = handleValue([]byte("hel\x00lo"))
+		require.Equal(t, &EnvValue{
+			Value:      "hel\nlo",
+			NeedRemove: false,
+		}, result)
+
+		result = handleValue([]byte("  hello  \t  "))
+		require.Equal(t, &EnvValue{
+			Value:      "  hello",
+			NeedRemove: false,
+		}, result)
+	})
+
+	t.Run("read value from file", func(t *testing.T) {
+		_, err := readValueFromFile("/dev", "nul=l")
+		require.ErrorIs(t, err, ErrWrongVarName)
+
+		_, err = readValueFromFile("/etc", "nonexistentfile123")
+		require.ErrorIs(t, err, ErrUnableToOpenFile)
+
+		result, err := readValueFromFile("testdata/env", "BAR")
+		require.NoError(t, err)
+		require.Equal(t, EnvValue{
+			Value:      "bar",
+			NeedRemove: false,
+		}, *result)
+
+		result, err = readValueFromFile("testdata/env", "EMPTY")
+		require.NoError(t, err)
+		require.Equal(t, EnvValue{
+			Value:      "",
+			NeedRemove: true,
+		}, *result)
+
+		result, err = readValueFromFile("testdata/env", "FOO")
+		require.NoError(t, err)
+		require.Equal(t, EnvValue{
+			Value:      "   foo\nwith new line",
+			NeedRemove: false,
+		}, *result)
+
+		result, err = readValueFromFile("testdata/env", "HELLO")
+		require.NoError(t, err)
+		require.Equal(t, EnvValue{
+			Value:      "\"hello\"",
+			NeedRemove: false,
+		}, *result)
+
+		result, err = readValueFromFile("testdata/env", "UNSET")
+		require.NoError(t, err)
+		require.Equal(t, EnvValue{
+			Value:      "",
+			NeedRemove: true,
+		}, *result)
+	})
+
+	t.Run("read dir", func(t *testing.T) {
+		_, err := ReadDir("/notfounddir")
+		require.ErrorIs(t, err, ErrUnableToReadDir)
+
+		_, err = ReadDir("testdata/env/UNSET")
+		require.ErrorIs(t, err, ErrNotADir)
+
+		_, err = ReadDir("testdata/")
+		require.ErrorIs(t, err, ErrNotAFile)
+
+		_, err = ReadDir("/root")
+		require.ErrorIs(t, err, ErrUnableToReadDir)
+
+		result, _ := ReadDir("testdata/env")
+		require.Equal(t, len(result), 5)
+	})
 }
