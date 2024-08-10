@@ -64,7 +64,7 @@ func readValueFromFile(dir, name string) (*EnvValue, error) {
 	if err != nil {
 		return nil, ErrUnableToOpenFile
 	}
-	defer file.Close()
+
 	reader := bufio.NewReader(file)
 	bytes, err := reader.ReadBytes('\n')
 	if err != nil && !errors.Is(err, io.EOF) {
@@ -79,6 +79,7 @@ func handleValue(b []byte) *EnvValue {
 		Value:      v,
 		NeedRemove: len(v) == 0,
 	}
+
 }
 
 func checkName(name string) bool {
