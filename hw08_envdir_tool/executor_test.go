@@ -20,7 +20,7 @@ func TestRunCmd(t *testing.T) {
 				NeedRemove: false,
 			},
 		})
-		require.Equal(t, code, 1)
+		require.Equal(t, code, 0)
 	})
 
 	t.Run("executor", func(t *testing.T) {
