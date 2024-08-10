@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -11,8 +12,6 @@ import (
 	"strconv"
 	"syscall"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 var (
