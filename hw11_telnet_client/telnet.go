@@ -31,17 +31,22 @@ func (t *telnetClient) Connect() error {
 }
 
 func (t *telnetClient) Send() error {
+	defer t.Close()
 	_, err := io.Copy(t.conn, t.in)
 	return err
 }
 
 func (t *telnetClient) Receive() error {
+	defer t.Close()
 	_, err := io.Copy(t.out, t.conn)
 	return err
 }
 
 func (t *telnetClient) Close() error {
-	return t.conn.Close()
+	if t.conn != nil {
+		return t.conn.Close()
+	}
+	return nil
 }
 
 func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
