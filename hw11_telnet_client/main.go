@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-// ParseInput разбирает входную строку и возвращает команду и её аргументы
 func ParseInput(input string) (string, []string) {
 	parts := strings.Fields(input)
 	if len(parts) == 0 {
@@ -30,15 +29,15 @@ func main() {
 
 	client := NewTelnetClient(address, timeout, os.Stdin, os.Stdout)
 
-	err := client.Connect()
-	if err != nil {
+	// Соединяемся с Telnet сервером
+	if err := client.Connect(); err != nil {
 		fmt.Println("Error connecting to the Telnet server:", err)
 		return
 	}
 
 	// Чтение пользовательского ввода
 	reader := bufio.NewReader(os.Stdin)
-	_, err = fmt.Fprintln(os.Stdout, "Введите команду для сервера (или 'exit' для выхода):")
+	_, err := fmt.Fprintln(os.Stdout, "Введите команду для сервера (или 'exit' для выхода):")
 	if err != nil {
 		return
 	}
@@ -50,7 +49,7 @@ func main() {
 		// Удаляем символы новой строки
 		input = strings.TrimSpace(input)
 
-		// Проверка команды выхода
+		// Проверяем команду выхода
 		if input == "exit" {
 			break
 		}
@@ -66,16 +65,14 @@ func main() {
 		}
 
 		// Отправка команды на сервер
-		err = client.Send()
-		if err != nil {
+		if err := client.Send(); err != nil {
 			fmt.Println("Ошибка при отправке данных:", err)
 			return
 		}
 
 		// Получение ответа от сервера
 		fmt.Println("Ответ от сервера:")
-		err = client.Receive()
-		if err != nil {
+		if err := client.Receive(); err != nil {
 			fmt.Println("Ошибка при получении данных:", err)
 			return
 		}
