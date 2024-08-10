@@ -1,13 +1,24 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 )
 
+func ParseInput(input string) (string, []string) {
+	parts := strings.Fields(input)
+	if len(parts) == 0 {
+		return "", nil
+	}
+	command := parts[0]
+	args := parts[1:]
+	return command, args
+}
+
 func main() {
-	// Проверка правильности количества аргументов
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go-telnet <host>:<port>")
 		return
@@ -16,30 +27,54 @@ func main() {
 	address := os.Args[1]
 	timeout := 10 * time.Second // Установка тайм-аута в 10 секунд
 
-	// Открытие соединения с Telnet сервером
 	client := NewTelnetClient(address, timeout, os.Stdin, os.Stdout)
+
 	err := client.Connect()
 	if err != nil {
 		fmt.Println("Error connecting to the Telnet server:", err)
 		return
 	}
 
-	// Отправка данных на сервер
-	_, err = fmt.Fprintln(os.Stdout, "Please enter your command:")
+	// Чтение пользовательского ввода
+	reader := bufio.NewReader(os.Stdin)
+	_, err = fmt.Fprintln(os.Stdout, "Введите команду для сервера (или 'exit' для выхода):")
 	if err != nil {
-		return
-	}
-	err = client.Send()
-	if err != nil {
-		fmt.Println("Error sending data:", err)
 		return
 	}
 
-	// Получение ответа от сервера
-	fmt.Println("Response from the server:")
-	err = client.Receive()
-	if err != nil {
-		fmt.Println("Error receiving data:", err)
-		return
+	for {
+		fmt.Print("> ")
+		input, _ := reader.ReadString('\n')
+
+		// Удаляем символы новой строки
+		input = strings.TrimSpace(input)
+
+		// Проверка команды выхода
+		if input == "exit" {
+			break
+		}
+
+		// Разбор команды и аргументов
+		command, args := ParseInput(input)
+		if len(args) > 0 {
+			fmt.Printf("Отправка команды: %s, аргументы: %v\n", command, args)
+		} else {
+			fmt.Printf("Отправка команды: %s\n", command)
+		}
+
+		// Отправка команды на сервер
+		err = client.Send()
+		if err != nil {
+			fmt.Println("Ошибка при отправке данных:", err)
+			return
+		}
+
+		// Получение ответа от сервера
+		fmt.Println("Ответ от сервера:")
+		err = client.Receive()
+		if err != nil {
+			fmt.Println("Ошибка при получении данных:", err)
+			return
+		}
 	}
 }
