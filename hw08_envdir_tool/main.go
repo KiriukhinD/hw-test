@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -28,22 +27,6 @@ func main() {
 		fmt.Println("Error executing command:", err)
 		os.Exit(1)
 	}
-}
-
-func processEnvFile(filePath string) (string, bool, error) {
-	content, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return "", false, err
-	}
-
-	contentStr := string(content)
-	if len(contentStr) == 0 {
-		return "", true, nil
-	}
-
-	value := strings.TrimRight(contentStr, " \t")
-	value = strings.Replace(value, "\x00", "\n", -1)
-	return value, false, nil
 }
 
 func execCmd(cmd string, args []string, env map[string]EnvValue) error {
