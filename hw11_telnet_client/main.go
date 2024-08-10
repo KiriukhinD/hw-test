@@ -1,46 +1,32 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"time"
 )
 
 func main() {
-	// Определяем флаги
-	timeout := flag.String("timeout", "10s", "Timeout for the connection")
-	flag.Parse()
-
-	// Получаем остаточные аргументы (хост и порт)
-	args := flag.Args()
-	if len(args) < 1 {
-		fmt.Println("Usage: go-telnet --timeout=<duration> <host>:<port>")
+	// Проверка правильности количества аргументов
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go-telnet <host>:<port>")
 		return
 	}
 
-	address := args[0]
-
-	// Преобразуем timeout в значение типа time.Duration
-	duration, err := time.ParseDuration(*timeout)
-	if err != nil {
-		fmt.Printf("Invalid timeout value: %v\n", err)
-		return
-	}
+	address := os.Args[1]
+	timeout := 10 * time.Second // Установка тайм-аута в 10 секунд
 
 	// Открытие соединения с Telnet сервером
-	client := NewTelnetClient(address, duration, os.Stdin, os.Stdout)
-	err = client.Connect()
+	client := NewTelnetClient(address, timeout, os.Stdin, os.Stdout)
+	err := client.Connect()
 	if err != nil {
 		fmt.Println("Error connecting to the Telnet server:", err)
 		return
 	}
+	defer client.Close()
 
 	// Отправка данных на сервер
-	_, err = fmt.Fprintln(os.Stdout, "Please enter your command:")
-	if err != nil {
-		return
-	}
+	fmt.Fprintln(os.Stdout, "Please enter your command:")
 	err = client.Send()
 	if err != nil {
 		fmt.Println("Error sending data:", err)
