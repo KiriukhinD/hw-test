@@ -23,10 +23,12 @@ func main() {
 		fmt.Println("Error connecting to the Telnet server:", err)
 		return
 	}
-	defer client.Close()
 
 	// Отправка данных на сервер
-	fmt.Fprintln(os.Stdout, "Please enter your command:")
+	_, err = fmt.Fprintln(os.Stdout, "Please enter your command:")
+	if err != nil {
+		return
+	}
 	err = client.Send()
 	if err != nil {
 		fmt.Println("Error sending data:", err)
