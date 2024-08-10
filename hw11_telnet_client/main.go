@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// ParseInput разбирает входную строку и возвращает команду и её аргументы
 func ParseInput(input string) (string, []string) {
 	parts := strings.Fields(input)
 	if len(parts) == 0 {
@@ -34,6 +35,7 @@ func main() {
 		fmt.Println("Error connecting to the Telnet server:", err)
 		return
 	}
+	defer client.Close()
 
 	// Чтение пользовательского ввода
 	reader := bufio.NewReader(os.Stdin)
@@ -56,6 +58,8 @@ func main() {
 
 		// Разбор команды и аргументов
 		command, args := ParseInput(input)
+
+		// Логируем отправляемую команду
 		if len(args) > 0 {
 			fmt.Printf("Отправка команды: %s, аргументы: %v\n", command, args)
 		} else {
