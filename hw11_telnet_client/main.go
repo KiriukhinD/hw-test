@@ -1,80 +1,96 @@
 package main
 
 import (
-	"bufio"
+	"context"
+	"flag"
 	"fmt"
+	"io"
+	"net"
 	"os"
-	"strings"
+	"os/signal"
+	"strconv"
+	"syscall"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
-func ParseInput(input string) (string, []string) {
-	parts := strings.Fields(input)
-	if len(parts) == 0 {
-		return "", nil
-	}
-	command := parts[0]
-	args := parts[1:]
-	return command, args
+var (
+	timeout               time.Duration
+	ErrArgsNumberMismatch = errors.New("number of arguments should be equal 2")
+	ErrInvalidPort        = errors.New("port should be in range 0-65535")
+	ErrUnableToConnect    = errors.New("unable to connect")
+)
+
+func init() {
+	flag.DurationVar(&timeout, "timeout", 10*time.Second, "connection timeout")
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: go-telnet <host>:<port>")
-		return
+	flag.Parse()
+	args := flag.Args()
+	if len(args) != 2 {
+		_, _ = fmt.Fprintf(os.Stderr, "error: %s\n", ErrArgsNumberMismatch)
+		os.Exit(1)
 	}
-
-	address := os.Args[1]
-	timeout := 10 * time.Second // Установка тайм-аута в 10 секунд
-
-	client := NewTelnetClient(address, timeout, os.Stdin, os.Stdout)
-
-	// Соединяемся с Telnet сервером
-	if err := client.Connect(); err != nil {
-		fmt.Println("Error connecting to the Telnet server:", err)
-		return
-	}
-
-	// Чтение пользовательского ввода
-	reader := bufio.NewReader(os.Stdin)
-	_, err := fmt.Fprintln(os.Stdout, "Введите команду для сервера (или 'exit' для выхода):")
+	host := args[0]
+	port, err := checkPort(args[1])
 	if err != nil {
-		return
+		_, _ = fmt.Fprintf(os.Stderr, "error: %s\n", err)
+		os.Exit(1)
 	}
-
-	for {
-		fmt.Print("> ")
-		input, _ := reader.ReadString('\n')
-
-		// Удаляем символы новой строки
-		input = strings.TrimSpace(input)
-
-		// Проверяем команду выхода
-		if input == "exit" {
-			break
-		}
-
-		// Разбор команды и аргументов
-		command, args := ParseInput(input)
-
-		// Логируем отправляемую команду
-		if len(args) > 0 {
-			fmt.Printf("Отправка команды: %s, аргументы: %v\n", command, args)
-		} else {
-			fmt.Printf("Отправка команды: %s\n", command)
-		}
-
-		// Отправка команды на сервер
-		if err := client.Send(); err != nil {
-			fmt.Println("Ошибка при отправке данных:", err)
-			return
-		}
-
-		// Получение ответа от сервера
-		fmt.Println("Ответ от сервера:")
-		if err := client.Receive(); err != nil {
-			fmt.Println("Ошибка при получении данных:", err)
-			return
-		}
+	ctx := context.Background()
+	err = work(ctx, host, *port, timeout)
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "error: %s\n", err)
+		os.Exit(1)
 	}
+}
+
+func work(ctx context.Context, host string, port uint16, timeout time.Duration) (err error) {
+	addr := net.JoinHostPort(host, strconv.Itoa(int(port)))
+	client := NewTelnetClient(addr, timeout, os.Stdin, os.Stdout)
+	err = client.Connect()
+	if err != nil {
+		return ErrUnableToConnect
+	}
+	defer func() {
+		err = client.Close()
+	}()
+	_, _ = fmt.Fprintf(os.Stderr, "...connected to %s\n", addr)
+	ctx, cancel := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
+	defer cancel()
+	go func() {
+		err := client.Send()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				_, _ = fmt.Fprintln(os.Stderr, "...EOF")
+			} else {
+				_, _ = fmt.Fprintf(os.Stderr, "send error: %s\n", err)
+			}
+		}
+		cancel()
+	}()
+	go func() {
+		err := client.Receive()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				_, _ = fmt.Fprintln(os.Stderr, "...EOF")
+			} else {
+				_, _ = fmt.Fprintln(os.Stderr, "...connection was closed by peer")
+			}
+		}
+		cancel()
+	}()
+	<-ctx.Done()
+	return nil
+}
+
+func checkPort(s string) (*uint16, error) {
+	n, err := strconv.ParseUint(s, 10, 16)
+	if err != nil {
+		return nil, ErrInvalidPort
+	}
+	port := uint16(n)
+	return &port, nil
 }
