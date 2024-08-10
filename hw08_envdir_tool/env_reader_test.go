@@ -14,7 +14,6 @@ func TestReadDir(t *testing.T) {
 		"var2": {"value2", false},
 		"var3": {"", true},
 	}
-
 	testEnvDir := "/path/to/env/dir"
 	env, err := ReadDir(testEnvDir)
 	if err != nil {
