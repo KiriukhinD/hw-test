@@ -18,7 +18,6 @@ func main() {
 		return
 	}
 	defer client.Close()
-
 	// Отправка данных на сервер
 	fmt.Fprintln(os.Stdout, "Please enter your command:")
 	err = client.Send()
