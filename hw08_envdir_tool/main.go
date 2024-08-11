@@ -7,6 +7,7 @@ import (
 
 func main() {
 	args := os.Args
+
 	l := len(args)
 	if l < 2 {
 		_, _ = fmt.Fprint(os.Stderr, "error: argument count mismatch")
