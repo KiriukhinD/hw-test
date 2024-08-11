@@ -9,6 +9,19 @@ import (
 )
 
 func TestRunCmd(t *testing.T) {
+	t.Run("executor", func(t *testing.T) {
+		pwd, _ := os.Getwd()
+		code := RunCmd([]string{
+			"/usr/bin/cat",
+			path.Join(pwd, "testdata/env/BAR"),
+		}, Environment{
+			"BAR": EnvValue{
+				Value:      "BAR",
+				NeedRemove: false,
+			},
+		})
+		require.Equal(t, code, 0)
+	})
 
 	t.Run("executor", func(t *testing.T) {
 		pwd, _ := os.Getwd()
