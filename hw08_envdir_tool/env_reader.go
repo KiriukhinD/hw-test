@@ -79,7 +79,6 @@ func handleValue(b []byte) *EnvValue {
 		Value:      v,
 		NeedRemove: len(v) == 0,
 	}
-
 }
 
 func checkName(name string) bool {
