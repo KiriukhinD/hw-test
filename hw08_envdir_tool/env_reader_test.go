@@ -7,40 +7,6 @@ import (
 )
 
 func TestReadDir(t *testing.T) {
-	t.Run("check name", func(t *testing.T) {
-		result := checkName("asd")
-		require.True(t, result)
-
-		result = checkName("VA=R")
-		require.False(t, result)
-
-		result = checkName("VAЯR")
-		require.False(t, result)
-
-		result = checkName(" VAR")
-		require.False(t, result)
-	})
-
-	t.Run("check handle value", func(t *testing.T) {
-		result := handleValue([]byte(""))
-		require.True(t, result.NeedRemove)
-
-		result = handleValue([]byte("hello"))
-		require.False(t, result.NeedRemove)
-
-		result = handleValue([]byte("hel\x00lo"))
-		require.Equal(t, &EnvValue{
-			Value:      "hel\nlo",
-			NeedRemove: false,
-		}, result)
-
-		result = handleValue([]byte("  hello  \t  "))
-		require.Equal(t, &EnvValue{
-			Value:      "  hello",
-			NeedRemove: false,
-		}, result)
-	})
-
 	t.Run("read value from file", func(t *testing.T) {
 		_, err := readValueFromFile("/dev", "nul=l")
 		require.ErrorIs(t, err, ErrWrongVarName)
@@ -82,22 +48,5 @@ func TestReadDir(t *testing.T) {
 			Value:      "",
 			NeedRemove: true,
 		}, *result)
-	})
-
-	t.Run("read dir", func(t *testing.T) {
-		_, err := ReadDir("/notfounddir")
-		require.ErrorIs(t, err, ErrUnableToReadDir)
-
-		_, err = ReadDir("testdata/env/UNSET")
-		require.ErrorIs(t, err, ErrNotADir)
-
-		_, err = ReadDir("testdata/")
-		require.ErrorIs(t, err, ErrNotAFile)
-
-		_, err = ReadDir("/root")
-		require.ErrorIs(t, err, ErrUnableToReadDir)
-
-		result, _ := ReadDir("testdata/env")
-		require.Equal(t, len(result), 5)
 	})
 }

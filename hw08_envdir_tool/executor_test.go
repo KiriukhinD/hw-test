@@ -9,7 +9,6 @@ import (
 )
 
 func TestRunCmd(t *testing.T) {
-
 	t.Run("executor", func(t *testing.T) {
 		pwd, _ := os.Getwd()
 		code := RunCmd([]string{
