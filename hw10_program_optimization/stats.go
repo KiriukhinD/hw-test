@@ -7,10 +7,10 @@ import (
 	"io"
 	"strings"
 
-	"github.com/mailru/easyjson"
+	"github.com/mailru/easyjson" //nolint:depguard
 
 	// Register some standard stuff...
-	_ "github.com/mailru/easyjson/gen"
+	_ "github.com/mailru/easyjson/gen" //nolint:depguard
 )
 
 type DomainStat map[string]int
