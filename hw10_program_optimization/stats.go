@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/mailru/easyjson" //nolint:depguard
-
 	// Register some standard stuff...
 	_ "github.com/mailru/easyjson/gen" //nolint:depguard
 )
