@@ -17,12 +17,19 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	command := exec.Command(cmd[0], cmd[1:]...) // #nosec G204
 	command.Stderr = os.Stderr
 	command.Stdout = os.Stdout
+	command.Stdin = os.Stdin
+
+	command.Env = os.Environ()
+
+	for key, value := range env {
+		command.Env = append(command.Env, fmt.Sprintf("%s=%s", key, value.Value))
+	}
 	err := setVariables(env)
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "error: %s", err)
 		return 1
 	}
-	command.Env = os.Environ()
+
 	if err := command.Run(); err != nil {
 		var ee *exec.ExitError
 		_, _ = fmt.Fprintf(os.Stderr, "error: %s", err)
